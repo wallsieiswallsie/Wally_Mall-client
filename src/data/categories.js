@@ -1,0 +1,62 @@
+export const categories = [
+  {
+    slug: "fashion",
+    name: "Fashion",
+    icon: "shirt",
+    sub: ["Wanita", "Pria", "Sepatu", "Tas", "Aksesoris", "Thrift"],
+  },
+  {
+    slug: "makanan",
+    name: "Makanan & Minuman",
+    short: "Makanan",
+    icon: "cup",
+    sub: ["Roti & Kue", "Makanan", "Minuman"],
+  },
+  {
+    slug: "elektronik",
+    name: "Elektronik",
+    icon: "phone",
+    sub: ["Handphone", "Aksesoris", "Komputer"],
+  },
+  {
+    slug: "beauty",
+    name: "Beauty & Personal Care",
+    short: "Beauty",
+    icon: "sparkle",
+    sub: ["Skincare", "Makeup", "Parfum"],
+  },
+  {
+    slug: "home",
+    name: "Home & Living",
+    short: "Home",
+    icon: "home",
+    sub: ["Furniture", "Dekorasi", "Dapur"],
+  },
+  {
+    slug: "hobi",
+    name: "Hobi & Koleksi",
+    short: "Hobi",
+    icon: "game",
+    sub: ["Musik", "Koleksi", "Gaming"],
+  },
+  {
+    slug: "otomotif",
+    name: "Otomotif",
+    icon: "car",
+    sub: ["Aksesoris", "Perawatan"],
+  },
+  {
+    slug: "jasa",
+    name: "Jasa",
+    icon: "tool",
+    sub: ["Kreatif", "Perbaikan", "Perawatan"],
+  },
+  { slug: "kids", name: "Kids", icon: "smile", sub: ["Mainan", "Pakaian"] },
+  {
+    slug: "sports",
+    name: "Sports",
+    icon: "ball",
+    sub: ["Olahraga", "Outdoor"],
+  },
+  { slug: "lainnya", name: "Lainnya", icon: "grid", sub: ["Lainnya"] },
+];
