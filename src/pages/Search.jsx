@@ -14,7 +14,10 @@ import SellerCard from "../components/seller/SellerCard";
 import { products } from "../data/products";
 import { sellers } from "../data/sellers";
 import { categories } from "../data/categories";
+import { usePrototype } from '../state/PrototypeContext';
+import { canDiscover } from '../domain/commerce';
 export function Listing({ source = products, query = "", showStores = true }) {
+  const {view}=usePrototype();
   const [params, setParams] = useSearchParams();
   const [sort, setSort] = useState("relevant");
   const [filters, setFilters] = useState({ ...defaultFilters });
@@ -22,7 +25,7 @@ export function Listing({ source = products, query = "", showStores = true }) {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   const matches = (text) =>
     words.every((word) => text.toLowerCase().includes(word));
-  const result = source.filter((p) => {
+  const result = source.filter(p=>canDiscover(p,view)).filter((p) => {
     const s = sellers.find((s) => s.slug === p.seller);
     const category = categories.find((c) => c.slug === p.category);
     return (

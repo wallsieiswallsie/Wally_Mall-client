@@ -3,7 +3,10 @@ import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { Logo, Modal } from "../components/common/UI";
 import Icon from "../components/common/Icon";
 import SearchBar from "../components/search/SearchBar";
+import { DemoAccess } from '../components/commerce/Shared';
+import { usePrototype } from '../state/PrototypeContext';
 export default function MarketplaceLayout() {
+  const {view,session}=usePrototype();
   const [favorites, setFavorites] = useState([
     "butter-croissant",
     "canvas-tote",
@@ -36,6 +39,7 @@ export default function MarketplaceLayout() {
             <SearchBar />
           </div>
           <nav className="desktop-nav" aria-label="Navigasi utama">
+            {session?.role==='buyer'&&<><NavLink to="/cart">Keranjang ({view.cart.reduce((n,l)=>n+l.quantity,0)})</NavLink><NavLink to="/orders">Pesanan</NavLink></>}
             <NavLink to="/explore">Jelajah</NavLink>
             <NavLink to="/categories">Kategori</NavLink>
             <Link to="/seller/register">
@@ -48,6 +52,7 @@ export default function MarketplaceLayout() {
             </NavLink>
           </nav>
           <div className="mobile-actions">
+            {session?.role==='buyer'&&<Link className="icon-btn" to="/cart" aria-label="Keranjang">▤ {view.cart.length}</Link>}
             <Link className="icon-btn" to="/search" aria-label="Cari">
               <Icon name="search" />
             </Link>
@@ -91,7 +96,7 @@ export default function MarketplaceLayout() {
           ["/", "home", "Home"],
           ["/search", "search", "Cari"],
           ["/categories", "grid", "Kategori"],
-          ["/favorites", "heart", "Favorit"],
+          session?.role==='buyer'?["/orders", "heart", "Pesanan"]:["/favorites", "heart", "Favorit"],
           ["/login", "user", "Akun"],
         ].map(([to, icon, label]) => (
           <NavLink
@@ -111,6 +116,7 @@ export default function MarketplaceLayout() {
           </NavLink>
         ))}
       </nav>
+      <DemoAccess compact/>
       {notice && (
         <Modal
           title={notice.title || "Preview interaksi"}

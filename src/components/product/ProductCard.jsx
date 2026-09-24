@@ -4,6 +4,8 @@ import { sellers } from "../../data/sellers";
 import { categories } from "../../data/categories";
 import { rupiah } from "../../utils/format";
 import Icon from "../common/Icon";
+import { usePrototype } from '../../state/PrototypeContext';
+import { canDiscover } from '../../domain/commerce';
 export function ProductImage({ product, ...props }) {
   return product.image ? (
     <img
@@ -76,9 +78,10 @@ export default function ProductCard({ product }) {
   );
 }
 export function ProductGrid({ products: items }) {
+  const {view}=usePrototype();
   return (
     <div className="product-grid">
-      {items.map((p) => (
+      {items.filter(p=>canDiscover(p,view)).map((p) => (
         <ProductCard key={p.slug} product={p} />
       ))}
     </div>
