@@ -2,12 +2,21 @@ import { useState } from "react";
 import { Link, useOutletContext, useNavigate } from "react-router";
 import { Field } from "../components/common/UI";
 import Icon from "../components/common/Icon";
-export default function Auth({ register = false }) {
+import { DemoAccess } from '../components/commerce/Shared';
+import { usePrototype, DEMO_ENABLED } from '../state/PrototypeContext';
+import { authenticateDemo } from '../domain/authentication';
+export default function Auth({
+  register = false
+}) {
+  const {
+    login
+  } = usePrototype();
   const [role, setRole] = useState("buyer");
-  const { notify } = useOutletContext();
+  const {
+    notify
+  } = useOutletContext();
   const navigate = useNavigate();
-  return (
-    <div className="auth-layout">
+  return <div className="auth-layout">
       <aside className="auth-story">
         <span className="eyebrow">SELAMAT DATANG DI WALLY</span>
         <h2>
@@ -30,83 +39,45 @@ export default function Auth({ register = false }) {
         </span>
         <h1>{register ? "Halo, teman baru." : "Masuk ke Wally"}</h1>
         <p>
-          {register
-            ? "Mulai perjalanan lokalmu di sini."
-            : "Temukan lagi barang dan toko favoritmu."}
+          {register ? "Mulai perjalanan lokalmu di sini." : "Temukan lagi barang dan toko favoritmu."}
         </p>
-        <form
-          className="form-stack"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (register && role === "seller") navigate("/seller/register");
-            else
-              notify({
-                title: register ? "Preview pendaftaran" : "Preview masuk",
-                message:
-                  "Form ini hanya mendemonstrasikan tampilan. Data tidak dikirim, akun tidak dibuat, dan tidak ada sesi login.",
-              });
-          }}
-        >
-          {register && (
-            <>
+        <form className="form-stack" onSubmit={e => {
+        e.preventDefault();
+        if (register && role === "seller") navigate("/seller/register");else if (!register && DEMO_ENABLED) {
+          const data = new FormData(e.currentTarget);
+          try {
+            navigate(login(authenticateDemo(data.get('identity'), data.get('password'), DEMO_ENABLED)));
+          } catch (error) {
+            notify({
+              title: 'Akun demo tidak cocok',
+              message: error.message
+            });
+          }
+        } else notify({
+          title: register ? "Preview pendaftaran" : "Preview masuk",
+          message: "Form ini hanya mendemonstrasikan tampilan. Data tidak dikirim, akun tidak dibuat, dan tidak ada sesi login."
+        });
+      }}>
+          {register && <>
               <div className="role-options">
-                {[
-                  ["buyer", "heart", "Saya ingin belanja"],
-                  ["seller", "store", "Saya ingin buka lapak"],
-                ].map(([value, icon, label]) => (
-                  <label
-                    key={value}
-                    className={`role-option ${role === value ? "selected" : ""}`}
-                  >
-                    <input
-                      type="radio"
-                      name="role"
-                      value={value}
-                      checked={role === value}
-                      onChange={() => setRole(value)}
-                    />
+                {[["buyer", "heart", "Saya ingin belanja"], ["seller", "store", "Saya ingin buka lapak"]].map(([value, icon, label]) => <label key={value} className={`role-option ${role === value ? "selected" : ""}`}>
+                    <input type="radio" name="role" value={value} checked={role === value} onChange={() => setRole(value)} />
                     <Icon name={icon} />
                     {label}
-                  </label>
-                ))}
+                  </label>)}
               </div>
               <Field label="Nama lengkap">
-                <input
-                  className="input"
-                  placeholder="Nama panggilan juga boleh"
-                  autoComplete="name"
-                  required
-                />
+                <input className="input" placeholder="Nama panggilan juga boleh" autoComplete="name" required />
               </Field>
-            </>
-          )}
+            </>}
           <Field label="Email / Nomor WhatsApp">
-            <input
-              className="input"
-              placeholder="Email atau 08xxxxxxxxxx"
-              autoComplete="username"
-              required
-            />
+            <input className="input" placeholder="Email atau 08xxxxxxxxxx" name="identity" autoComplete="username" required />
           </Field>
-          <Field
-            label="Password"
-            hint="Gunakan data contoh untuk mencoba prototype."
-          >
-            <input
-              type="password"
-              className="input"
-              placeholder="Masukkan password contoh"
-              autoComplete={register ? "new-password" : "current-password"}
-              required
-              minLength={6}
-            />
+          <Field label="Password" hint="Gunakan data contoh untuk mencoba prototype.">
+            <input type="password" name="password" className="input" placeholder="Masukkan password contoh" autoComplete={register ? "new-password" : "current-password"} required minLength={6} />
           </Field>
           <button className="btn btn-primary full" type="submit">
-            {register
-              ? role === "seller"
-                ? "Lanjut ke informasi toko"
-                : "Daftar"
-              : "Masuk"}
+            {register ? role === "seller" ? "Lanjut ke informasi toko" : "Daftar" : "Masuk"}
             <Icon name="arrow" size={18} />
           </button>
         </form>
@@ -116,8 +87,8 @@ export default function Auth({ register = false }) {
             {register ? "Masuk" : "Daftar"}
           </Link>
         </p>
-        <div className="prototype-note">Prototype UI · Tanpa autentikasi</div>
+        {!register && <p className="prototype-note">Akun demo: buyer@demo.wally / seller@demo.wally / admin@demo.wally / super@demo.wally · Password: wally-demo</p>}
+        <DemoAccess />
       </section>
-    </div>
-  );
+    </div>;
 }

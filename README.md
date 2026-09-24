@@ -2,7 +2,7 @@
 
 Wally Mall is a hyperlocal marketplace and commerce discovery platform initially focused on **Sorong, Papua Barat Daya**. Its product direction is to help people discover locally available products and sellers while giving local merchants, home businesses, UMKM, and local brands a structured digital storefront.
 
-**Current stage: interactive frontend prototype.** All catalog entries, sellers, ratings, and statistics are examples. Discovery works on bundled data; accounts, publishing, and seller contact are simulated. There is no backend or database yet.
+**Current stage: transactional frontend prototype.** Discovery now extends to multi-seller checkout, a mock payment gateway, order tracking, seller fulfillment, operational Admin and financial Super Admin dashboards. All accounts, payments, and data are simulated; there is no backend or real settlement. See [transaction prototype guide](docs/17-transaction-prototype.md) for demo access, architecture, authorization requirements and validation. The earlier documents describe the original discovery baseline unless superseded by this guide.
 
 ## Why Wally Mall Exists
 
@@ -26,7 +26,7 @@ Visitors can browse 15 sample products from 5 sample sellers across 11 category 
 
 ## User Types
 
-The UI addresses visitors/buyers and sellers. Registration offers buyer and seller choices, but these are not authenticated roles. Every route, including seller pages, is publicly reachable. No admin interface exists.
+The prototype provides buyer, seller, admin and super_admin demo roles, guarded routes, role-specific data projections and mutation checks. On `/login`, use **Prototype Access** or **View Super Admin Prototype**. These client checks demonstrate the access matrix; production requires backend authentication and authorization.
 
 ## Core User Journey
 

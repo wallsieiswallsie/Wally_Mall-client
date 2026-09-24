@@ -5,7 +5,9 @@ import Icon from "../components/common/Icon";
 import { categories } from "../data/categories";
 import { products } from "../data/products";
 import { rupiah } from "../utils/format";
+import { usePrototype } from '../state/PrototypeContext';
 export default function AddProduct() {
+  const {session}=usePrototype();
   const navigate = useNavigate();
   const { setDemoProducts } = useOutletContext();
   const [form, setForm] = useState({
@@ -299,7 +301,7 @@ export default function AddProduct() {
             className="btn btn-primary full"
             onClick={() => {
               setDemoProducts((items) => [
-                { ...form, price: Number(form.price), image: photo, tags },
+                { ...form, seller: session.seller, price: Number(form.price), image: photo, tags },
                 ...items,
               ]);
               navigate("/seller/dashboard");

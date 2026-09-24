@@ -1,3 +1,4 @@
+import { usePrototype } from "../state/PrototypeContext";
 import { useState } from "react";
 import { Link, useOutletContext } from "react-router";
 import { Field } from "../components/common/UI";
@@ -12,6 +13,7 @@ const steps = [
 ];
 export default function SellerOnboarding() {
   const { setDemoStore } = useOutletContext();
+  const {login}=usePrototype();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     name: "",
@@ -179,7 +181,7 @@ export default function SellerOnboarding() {
               <Link
                 className="btn btn-primary full"
                 to="/seller/dashboard"
-                onClick={() => setDemoStore(form)}
+                onClick={() => {setDemoStore(form);login("seller");}}
               >
                 Lihat dashboard preview
                 <Icon name="arrow" size={18} />

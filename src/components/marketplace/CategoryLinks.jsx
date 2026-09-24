@@ -1,10 +1,12 @@
 import { Link } from "react-router";
 import { categories } from "../../data/categories";
 import Icon from "../common/Icon";
+import { usePrototype } from '../../state/PrototypeContext';
 export default function CategoryLinks({ all = false }) {
+  const {view}=usePrototype();
   return (
     <div className={`category-grid ${all ? "all-categories" : ""}`}>
-      {(all ? categories : categories.slice(0, 8)).map((c) => (
+      {(all ? categories : categories.slice(0, 8)).filter(c=>view.categoryStatus[c.slug]!=='hidden').map((c) => (
         <Link className="category-item" key={c.slug} to={`/category/${c.slug}`}>
           <span className="category-icon">
             <Icon name={c.icon} size={25} />
