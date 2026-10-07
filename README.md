@@ -2,7 +2,7 @@
 
 Wally Mall is a hyperlocal marketplace and commerce discovery platform initially focused on **Sorong, Papua Barat Daya**. Its product direction is to help people discover locally available products and sellers while giving local merchants, home businesses, UMKM, and local brands a structured digital storefront.
 
-**Current stage: transactional frontend prototype.** Discovery now extends to multi-seller checkout, a mock payment gateway, order tracking, seller fulfillment, operational Admin and financial Super Admin dashboards. All accounts, payments, and data are simulated; there is no backend or real settlement. See [transaction prototype guide](docs/17-transaction-prototype.md) for demo access, architecture, authorization requirements and validation. The earlier documents describe the original discovery baseline unless superseded by this guide.
+**Current stage: client connected to the server API.** Live mode is the default for authentication, catalog, buyer commerce, seller and admin workflows. Payments still use the backend sandbox adapter. Follow the [client/server setup](../README.md) and [integration contract and gaps](../docs/client-server-integration.md). The [transaction prototype guide](docs/17-transaction-prototype.md) and older product documents describe the separate prototype, enabled only with `VITE_PROTOTYPE_MODE=true`.
 
 ## Why Wally Mall Exists
 
@@ -22,11 +22,11 @@ The initial business scope is Sorong. Concentrating on a defined area is intende
 
 ## Current Product
 
-Visitors can browse 15 sample products from 5 sample sellers across 11 category definitions, search products and stores, filter and sort products, open detail pages, save session-only favorites, and copy a product link. Seller onboarding and product forms feed a session-only dashboard preview. Contact buttons display explanatory dialogs; they do not open WhatsApp or send messages.
+Live visitors browse products, stores and categories from PostgreSQL through the API. Authenticated users manage persistent favorites, addresses and orders. Seller and admin pages use role-protected server routes. The sample catalog and session-only previews remain available exclusively in prototype mode; contact messaging and uploads have no backend adapter yet.
 
 ## User Types
 
-The prototype provides buyer, seller, admin and super_admin demo roles, guarded routes, role-specific data projections and mutation checks. On `/login`, use **Prototype Access** or **View Super Admin Prototype**. These client checks demonstrate the access matrix; production requires backend authentication and authorization.
+Live roles come from `/users/me` or the authentication response and are enforced again by the server. Public registration grants buyer; seller approval grants seller; staff creation is restricted to super admin. Prototype Access shortcuts appear only in explicitly enabled demo mode.
 
 ## Core User Journey
 
@@ -45,7 +45,7 @@ See [current user flows](docs/04-user-flows.md) for seller simulations and their
 
 ## System Architecture
 
-A browser runs a React single-page application. React Router selects pages; JavaScript fixture modules provide the catalog. React state holds preview changes. Product images load from Unsplash. There is no application API, authentication service, database, or upload service. The [architecture](docs/06-system-architecture.md), [proposed schema](docs/07-database-design.md), and [proposed API](docs/09-api-design.md) distinguish current behavior from future implementation.
+A browser runs the React SPA. `src/api/client.js` handles JSON, bearer authentication, refresh/retry and errors; `src/live/ServerApp.jsx` connects routes to the actual Fastify API. `PrototypeContext` remains isolated to demo mode. The older architecture/proposed API documents are historical; [server source contracts](../server/docs/client-api-mapping.md) are authoritative.
 
 ## Tech Stack
 
@@ -57,8 +57,8 @@ Derived from `client/package.json`, its lockfile, imports, and Vite configuratio
 | Routing | React Router 7.18.4, BrowserRouter |
 | Build | Vite 6.4.3, React Vite plugin 4.7.0 |
 | Styling | Tailwind CSS / Vite integration 4.3.3, DaisyUI 5.7.42, custom CSS |
-| Data and state | Static JS fixtures, React hooks and outlet context |
-| Backend / database | Not implemented |
+| Data and state | REST API, React hooks/context; isolated fixtures in demo mode |
+| Backend / database | Fastify / Knex / PostgreSQL in ../server |
 
 ## Repository Structure
 
@@ -74,8 +74,8 @@ Wally_Mall/
     src/utils/             IDR price formatting
     src/assets/            Asset notes; wordmark is implemented in JSX
     src/styles.css         Theme, layout and responsive styling
-    package.json           The only package and runnable scripts
-  .env.example             Documents that no variables are currently required
+    package.json           Client scripts; server has its own package
+  .env.example             API base URL, Vite proxy target, opt-in prototype flag
   CONTRIBUTING.md          Local workflow and review expectations
 ```
 
@@ -89,14 +89,14 @@ npm ci
 npm run dev
 ```
 
-Open the URL printed by Vite. Development binds to `127.0.0.1`. No environment file is necessary; see [.env.example](.env.example). Use invented form values while trying the prototype.
+Development binds to `127.0.0.1:5173`. Copy [.env.example](.env.example) to `.env` and configure/start the server as described in the [root setup guide](../README.md). Use `VITE_PROTOTYPE_MODE=true` only for the browser-only prototype.
 
 ```sh
 npm run build
 npm run preview
 ```
 
-These commands run from `client/`. Build output is `client/dist/`. Preview is a local build check. There are **no backend, migration, seed, test, or lint scripts**. Sample data is imported automatically, not seeded into a database. See [deployment](docs/14-deployment.md) for SPA fallback requirements and the audit's verification scope.
+These commands run from `client/`. Build output is `client/dist/`. Preview is only a local build check. Available checks are `npm test`, `npm run test:render`, and `npm run build`; there is no lint/typecheck script. Migration, seed and backend test commands belong to `server/package.json`. See the [current deployment configuration](../README.md#deployment-frontend); production static hosting does not use the Vite proxy.
 
 ## Documentation
 

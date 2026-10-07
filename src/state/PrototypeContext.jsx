@@ -4,7 +4,7 @@ import { seedState } from '../data/prototype.js';
 import { products } from '../data/products.js';
 import { destinations, inventory, quote, requireRole, transitionOrder, visibleOrders, labels, variantsFor } from '../domain/commerce.js';
 import { paymentGateway, refundOrder } from '../domain/payment.js';
-export const DEMO_ENABLED = import.meta.env.VITE_PROTOTYPE_MODE !== 'false';
+export const DEMO_ENABLED = import.meta.env.VITE_PROTOTYPE_MODE === 'true';
 const Context = createContext(null);
 const storageKey = 'wally-transaction-prototype-v1';
 function restore() {

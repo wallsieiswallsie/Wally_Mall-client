@@ -2,6 +2,9 @@ import { createServer } from 'vite';
 import assert from 'node:assert/strict';
 import { seedState } from '../src/data/prototype.js';
 
+// This suite deliberately verifies the opt-in prototype, independently of .env.
+process.env.VITE_PROTOTYPE_MODE='true';
+
 const state=seedState();
 state.cart=[{key:'butter-croissant:',slug:'butter-croissant',quantity:2,variant:''}];
 state.sessions=[{id:'PAY-DEMO',checkoutId:state.orders[0].checkoutId,amount:851500,method:'QRIS',status:'pending',expiresAt:new Date(Date.now()+900000).toISOString()}];

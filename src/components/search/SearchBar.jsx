@@ -13,6 +13,7 @@ export default function SearchBar({
   initialValue = "",
   hero = false,
   autoFocus = false,
+  suggestions = true,
 }) {
   const [value, setValue] = useState(initialValue);
   const [focused, setFocused] = useState(false);
@@ -76,7 +77,7 @@ export default function SearchBar({
           <Icon name="arrow" size={17} />
         </button>
       </form>
-      {focused && value.trim() && (
+      {suggestions && focused && value.trim() && (
         <SearchSuggestion value={value} onSelect={submit} />
       )}
     </div>
