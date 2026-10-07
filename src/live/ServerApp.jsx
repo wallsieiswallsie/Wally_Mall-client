@@ -2086,7 +2086,7 @@ function LiveRoutes() {
           }
         />
         <Route path="login" element={<Auth key="login" />} />
-        <Route path="register" element={<Auth key="register" />} />
+        <Route path="register" element={<Auth key="register" register />} />
         {["cart", "checkout"].map((path) => (
           <Route
             key={path}
