@@ -1,6 +1,29 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { uploadMedia, validateMediaFile } from "../src/api/media.js";
+import { createApi } from "../src/api/client.js";
+
+test("real API client sends media start and completion to canonical URLs", async () => {
+  const calls = [];
+  const api = createApi({ baseUrl: "https://server.example.com/", fetchImpl: async (url, options) => {
+    calls.push({ url, method: options.method });
+    if (url.endsWith("/auth/login")) return new Response(JSON.stringify({ data: {
+      access_token: "token", refresh_token: "refresh", user: { id: "seller" },
+    } }));
+    if (url.endsWith("/media/uploads")) return new Response(JSON.stringify({ data: {
+      upload_id: "asset", upload_url: "https://put.example.com", headers: {},
+    } }));
+    return new Response(JSON.stringify({ data: { id: "asset" } }));
+  } });
+  await api.authenticate(false, {});
+  await uploadMedia(new Blob(["image"], { type: "image/png" }), {
+    api, put: async () => {},
+  });
+  assert.deepEqual(calls.slice(1), [
+    { url: "https://server.example.com/api/v1/media/uploads", method: "POST" },
+    { url: "https://server.example.com/api/v1/media/uploads/asset/complete", method: "POST" },
+  ]);
+});
 test("shared uploader sends File/Blob then completes and returns server asset", async () => {
   const file = new Blob(["image"], { type: "image/png" });
   const calls = [];

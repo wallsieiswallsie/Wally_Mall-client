@@ -7,7 +7,7 @@ const { chromium } = await import(process.env.PLAYWRIGHT_MODULE
 const cwd = fileURLToPath(new URL("..", import.meta.url));
 const vite = spawn(process.execPath, ["node_modules/vite/bin/vite.js", "--host", "127.0.0.1", "--port", "5184"], {
   cwd, windowsHide: true, stdio: "ignore",
-  env: { ...process.env, VITE_API_BASE_URL: "/api/v1", VITE_PROTOTYPE_MODE: "false" },
+  env: { ...process.env, VITE_API_URL: "http://127.0.0.1:5184", VITE_API_BASE_URL: "", VITE_PROTOTYPE_MODE: "false" },
 });
 let browser, page;
 try {

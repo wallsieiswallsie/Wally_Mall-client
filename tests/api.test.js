@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createApi } from '../src/api/client.js';
+import { apiUrl, normalizeApiOrigin } from '../src/api/url.js';
 import { findSellerOrder } from '../src/api/orders.js';
 const ok = data => new Response(JSON.stringify({ data }), { status: 200 });
 const fail = (status = 401, code = 'UNAUTHORIZED') => new Response(JSON.stringify({ error: { code, request_id: 'request-test' } }), { status });
@@ -10,9 +11,39 @@ function storage() {
 }
 const credentials = { access_token: 'access-one', refresh_token: 'refresh-one', expires_in: 900, user: { id: 'user-one', roles: ['buyer'] } };
 
+test('origin-only URL contract normalizes slashes and rejects embedded API prefixes', () => {
+  for (const origin of ['https://server.example.com', 'https://server.example.com/'])
+    assert.equal(apiUrl('/media/uploads', origin), 'https://server.example.com/api/v1/media/uploads');
+  assert.equal(apiUrl('/products?limit=5'), '/api/v1/products?limit=5');
+  assert.throws(() => normalizeApiOrigin('', { required: true }), /VITE_API_URL is required/);
+  for (const invalid of ['https://server.example.com/api/v1', 'https://server.example.com/v1',
+    'https://server.example.com/api', 'https://server.example.com/?key=secret'])
+    assert.throws(() => normalizeApiOrigin(invalid), /server origin/);
+  for (const invalid of ['/api/v1/media/uploads', '/v1/media/uploads', 'https://server.example.com/products'])
+    assert.throws(() => apiUrl(invalid, 'https://server.example.com'), /relative endpoint/);
+});
+
+test('auth, catalog, seller, and media calls resolve through the same prefix', async () => {
+  const calls = [];
+  const api = createApi({ baseUrl: 'https://server.example.com/', fetchImpl: async (url, options) => {
+    calls.push({ url, method: options.method });
+    return ok(url.endsWith('/auth/login') ? credentials : {});
+  } });
+  await api.authenticate(false, {});
+  await api.request('/products', { auth: false });
+  await api.request('/categories', { auth: false });
+  await api.request('/seller/applications');
+  assert.deepEqual(calls.map(c => c.url), [
+    'https://server.example.com/api/v1/auth/login',
+    'https://server.example.com/api/v1/products',
+    'https://server.example.com/api/v1/categories',
+    'https://server.example.com/api/v1/seller/applications',
+  ]);
+});
+
 test('public requests omit auth; login serializes JSON and private requests inject bearer', async () => {
   const calls = [], saved = storage();
-  const api = createApi({ baseUrl: 'http://server.test/api/v1/', storage: saved, fetchImpl: async (url, options) => { calls.push({ url, ...options }); return ok(url.endsWith('/auth/login') ? credentials : []); } });
+  const api = createApi({ baseUrl: 'http://server.test/', storage: saved, fetchImpl: async (url, options) => { calls.push({ url, ...options }); return ok(url.endsWith('/auth/login') ? credentials : []); } });
   await api.request('/products', { auth: false });
   assert.equal(calls[0].url, 'http://server.test/api/v1/products');
   assert.equal(calls[0].headers.Authorization, undefined);

@@ -1,5 +1,9 @@
 import { ApiError } from "./client.js";
 
+export const MEDIA_UPLOADS_PATH = "/media/uploads";
+export const mediaCompletePath = (id) => `${MEDIA_UPLOADS_PATH}/${encodeURIComponent(id)}/complete`;
+export const mediaDeletePath = (id) => `/media/${encodeURIComponent(id)}`;
+
 export function validateMediaFile(file) {
   if (!["image/jpeg", "image/png", "image/webp"].includes(file.type))
     throw new ApiError("UNSUPPORTED_MEDIA_TYPE");
@@ -59,7 +63,7 @@ export async function uploadMedia(
   validateMediaFile(file);
   let session;
   try {
-    session = await api.request("/media/uploads", {
+    session = await api.request(MEDIA_UPLOADS_PATH, {
       method: "POST",
       signal,
       body: {
@@ -71,14 +75,14 @@ export async function uploadMedia(
       },
     });
     await put(session.upload_url, file, session.headers, onProgress, signal);
-    return await api.request(`/media/uploads/${session.upload_id}/complete`, {
+    return await api.request(mediaCompletePath(session.upload_id), {
       method: "POST",
       signal,
     });
   } catch (error) {
     if (session)
       await api
-        .request(`/media/${session.upload_id}`, { method: "DELETE" })
+        .request(mediaDeletePath(session.upload_id), { method: "DELETE" })
         .catch(() => {});
     throw error;
   }

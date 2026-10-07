@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { uploadMedia, validateMediaFile } from "../../api/media.js";
+import { mediaDeletePath, uploadMedia, validateMediaFile } from "../../api/media.js";
 
 export default function MediaUploader({
   api,
@@ -79,7 +79,7 @@ export default function MediaUploader({
     update(item.id, { status: "removing" });
     try {
       if (item.asset)
-        await api.request(`/media/${item.asset.id}`, { method: "DELETE" });
+        await api.request(mediaDeletePath(item.asset.id), { method: "DELETE" });
       item.controller?.abort();
       URL.revokeObjectURL(item.preview);
       current.current = current.current.filter((x) => x.id !== item.id);

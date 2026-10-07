@@ -2490,7 +2490,7 @@ export default function ServerApp() {
     [attempt, setAttempt] = useState(0);
   const [api] = useState(() =>
     createApi({
-      baseUrl: import.meta.env.VITE_API_BASE_URL,
+      baseUrl: import.meta.env.VITE_API_URL,
       storage: browserStorage(),
       onUnauthorized: () => setUser(null),
     }),

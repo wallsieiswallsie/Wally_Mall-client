@@ -1,3 +1,5 @@
+import { apiUrl, normalizeApiOrigin } from "./url.js";
+
 const messages = {
   MEDIA_TOO_LARGE: "Foto harus berukuran 1 byte hingga 5 MB.",
   UNSUPPORTED_MEDIA_TYPE: "Gunakan foto JPEG, PNG, atau WebP yang valid (maksimal 25 megapiksel, tanpa animasi).",
@@ -33,12 +35,12 @@ export class ApiError extends Error {
 
 // Access token lives in memory; only the rotating refresh token survives a tab reload.
 export function createApi({
-  baseUrl = "/api/v1",
+  baseUrl = "",
   fetchImpl = globalThis.fetch,
   storage,
   onUnauthorized = () => {},
 } = {}) {
-  const base = baseUrl.replace(/\/+$/, "");
+  const base = normalizeApiOrigin(baseUrl);
   let accessToken = null;
   const saved = (method, ...args) => {
     try {
@@ -64,7 +66,7 @@ export function createApi({
   async function send(path, { method = "GET", body, signal } = {}, token) {
     let response;
     try {
-      response = await fetchImpl(`${base}${path}`, {
+      response = await fetchImpl(apiUrl(path, base), {
         method,
         signal,
         headers: {
