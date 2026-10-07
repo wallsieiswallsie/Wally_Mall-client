@@ -22,6 +22,7 @@ import {
   Field,
 } from "../components/common/UI";
 import Icon from "../components/common/Icon";
+import MediaUploader from "../components/common/MediaUploader";
 import SearchBar from "../components/search/SearchBar";
 import "./live.css";
 
@@ -60,7 +61,6 @@ const names = {
   variant_name: "Nama varian",
   price: "Harga (rupiah)",
   on_hand: "Stok",
-  image_url: "URL foto produk",
   percentage: "Persentase",
   fixed_amount: "Biaya tetap (rupiah)",
   effective_from: "Berlaku mulai",
@@ -270,7 +270,14 @@ function Action({ children, run, onDone, disabled = false }) {
   );
 }
 // Native form validation complements the authoritative Zod schemas on the server.
-function Form({ fields, submit, button = "Simpan", onDone }) {
+function Form({
+  fields,
+  submit,
+  button = "Simpan",
+  onDone,
+  children,
+  disabled = false,
+}) {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(null);
   const lock = useRef(false);
@@ -283,7 +290,7 @@ function Form({ fields, submit, button = "Simpan", onDone }) {
       className="form-stack"
       onSubmit={async (e) => {
         e.preventDefault();
-        if (lock.current) return;
+        if (lock.current || disabled) return;
         const form = e.currentTarget;
         const values = Object.fromEntries(
           [...new FormData(form)].filter(([, value]) => value !== ""),
@@ -363,7 +370,11 @@ function Form({ fields, submit, button = "Simpan", onDone }) {
       {unavailable && (
         <p role="status">Pilihan yang diperlukan belum tersedia.</p>
       )}
-      <button disabled={busy || unavailable} className="btn btn-primary">
+      {typeof children === "function" ? children(busy) : children}
+      <button
+        disabled={busy || unavailable || disabled}
+        className="btn btn-primary"
+      >
         {busy ? "Memproses…" : button}
       </button>
     </form>
@@ -408,9 +419,9 @@ function Shell() {
         </>
       )}
       <NavLink to="/seller/register">Buka lapak</NavLink>
-      {user?.roles.some((r) => ["seller", "admin", "super_admin"].includes(r)) && (
-        <NavLink to={destination(user)}>Dashboard</NavLink>
-      )}
+      {user?.roles.some((r) =>
+        ["seller", "admin", "super_admin"].includes(r),
+      ) && <NavLink to={destination(user)}>Dashboard</NavLink>}
       {user ? (
         <Action
           run={() => api.logout()}
@@ -470,7 +481,8 @@ function Shell() {
             aria-current={
               location.pathname === to ||
               (to === "/search" && location.pathname === "/explore") ||
-              (to === "/categories" && location.pathname.startsWith("/category/"))
+              (to === "/categories" &&
+                location.pathname.startsWith("/category/"))
                 ? "page"
                 : undefined
             }
@@ -685,7 +697,9 @@ function Cards({ products, favorites = false, reload }) {
               {p.name}
             </Link>
             <strong>{money(p.min_price)}</strong>
-            <Link className="product-seller" to={`/store/${p.store_slug}`}>{p.store_name}</Link>
+            <Link className="product-seller" to={`/store/${p.store_slug}`}>
+              {p.store_name}
+            </Link>
             {user && (
               <Action
                 run={() =>
@@ -798,7 +812,10 @@ function Catalog({ favorites = false, category = false }) {
                   reload={list.reload}
                 />
               )}
-              <nav className="w-pagination live-pagination" aria-label="Halaman hasil">
+              <nav
+                className="w-pagination live-pagination"
+                aria-label="Halaman hasil"
+              >
                 <button
                   className="btn btn-outline"
                   disabled={Number(query.get("offset")) === 0}
@@ -1599,6 +1616,7 @@ function SellerStore({ store: initialStore }) {
 function AddProduct() {
   const { api } = useServer(),
     navigate = useNavigate();
+  const [images, setImages] = useState([]);
   const stores = useResource("/seller/stores"),
     categories = useResource("/categories", { auth: false });
   return (
@@ -1631,16 +1649,8 @@ function AddProduct() {
                   "variant_name",
                   { key: "price", type: "number", min: 0 },
                   { key: "on_hand", type: "number", min: 0, max: 99999 },
-                  { key: "image_url", type: "url", optional: true },
                 ]}
-                submit={({
-                  store_id,
-                  variant_name,
-                  price,
-                  on_hand,
-                  image_url,
-                  ...body
-                }) =>
+                submit={({ store_id, variant_name, price, on_hand, ...body }) =>
                   api.request(`/seller/stores/${store_id}/products`, {
                     method: "POST",
                     body: {
@@ -1648,14 +1658,24 @@ function AddProduct() {
                       variants: [
                         { name: variant_name, price, on_hand: Number(on_hand) },
                       ],
-                      media: image_url
-                        ? [{ url: image_url, media_type: "image" }]
-                        : [],
+                      media: images.map((image) => ({
+                        media_asset_id: image.asset.id,
+                      })),
                     },
                   })
                 }
                 onDone={() => navigate("/seller/dashboard")}
-              />
+                disabled={images.some((image) => image.status !== "uploaded")}
+              >
+                {(busy) => (
+                  <MediaUploader
+                    api={api}
+                    value={images}
+                    onChange={setImages}
+                    disabled={busy}
+                  />
+                )}
+              </Form>
             )}
           </Resource>
         )}

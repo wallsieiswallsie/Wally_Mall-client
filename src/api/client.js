@@ -1,4 +1,12 @@
 const messages = {
+  MEDIA_TOO_LARGE: "Foto harus berukuran 1 byte hingga 5 MB.",
+  UNSUPPORTED_MEDIA_TYPE: "Gunakan foto JPEG, PNG, atau WebP yang valid (maksimal 25 megapiksel, tanpa animasi).",
+  MEDIA_UPLOAD_FAILED: "Upload gagal. Periksa koneksi lalu coba lagi.",
+  MEDIA_OBJECT_NOT_FOUND: "File belum diterima. Coba unggah lagi.",
+  MEDIA_NOT_PUBLIC: "Foto belum dapat diakses publik. Hubungi pengelola Wally Mall.",
+  MEDIA_UPLOAD_EXPIRED: "Waktu upload habis. Silakan coba lagi.",
+  MEDIA_UPLOAD_LIMIT: "Terlalu banyak foto belum dipakai. Hapus foto yang tidak diperlukan.",
+  MEDIA_IN_USE: "Foto sudah dipakai oleh produk.",
   INVALID_CREDENTIALS: "Email atau password tidak cocok.",
   VALIDATION_ERROR: "Periksa kembali isian formulir.",
   RESOURCE_CONFLICT: "Data sudah terdaftar atau bertentangan dengan data lain.",

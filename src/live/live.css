@@ -345,3 +345,11 @@
     font-weight: 600;
   }
 }
+.media-uploader { min-width: 0; border: 1px solid #ddd; border-radius: 12px; padding: 16px; }
+.media-drop { display: grid; gap: 12px; padding: 20px; border: 2px dashed #aaa; border-radius: 8px; }
+.media-drop input { max-width: 100%; }
+.media-previews { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; }
+.media-previews > div { width: 160px; overflow-wrap: anywhere; }
+.media-previews img { object-fit: cover; border-radius: 8px; }
+.media-previews button { margin: 4px; }
+.media-previews progress { max-width: 100%; }
