@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import {
   Link,
   Navigate,
+  NavLink,
   Outlet,
   Route,
   Routes,
@@ -13,7 +14,7 @@ import {
 import { createApi } from "../api/client";
 import { browserStorage, paymentLinks } from "../api/session";
 import { findSellerOrder } from "../api/orders";
-import { Logo, SectionHeading, EmptyState } from "../components/common/UI";
+import { Logo, SectionHeading, EmptyState, Modal } from "../components/common/UI";
 import Icon from "../components/common/Icon";
 import SearchBar from "../components/search/SearchBar";
 import "./live.css";
@@ -372,44 +373,67 @@ function Guard({ roles, children }) {
 function Shell() {
   const { api, user, setUser } = useServer();
   const navigate = useNavigate();
-  return (
+  const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuTrigger = useRef(null);
+  const wasMenuOpen = useRef(false);
+  useEffect(() => setMenuOpen(false), [location.pathname, location.search]);
+  useEffect(() => {
+    if (wasMenuOpen.current && !menuOpen) menuTrigger.current?.focus();
+    wasMenuOpen.current = menuOpen;
+  }, [menuOpen]);
+  const secondaryLinks = (
     <>
+      {user && <NavLink to="/account">Akun & notifikasi</NavLink>}
+      {user?.roles.includes("buyer") && (
+        <>
+          <NavLink to="/cart">Keranjang</NavLink>
+          <NavLink to="/orders">Pesanan</NavLink>
+        </>
+      )}
+      <NavLink to="/seller/register">Buka lapak</NavLink>
+      {user?.roles.some((r) => ["seller", "admin", "super_admin"].includes(r)) && (
+        <NavLink to={destination(user)}>Dashboard</NavLink>
+      )}
+      {user ? (
+        <Action
+          run={() => api.logout()}
+          onDone={() => {
+            setUser(null);
+            navigate("/login");
+          }}
+        >
+          Keluar ({user.name})
+        </Action>
+      ) : (
+        <NavLink to="/login">Masuk</NavLink>
+      )}
+    </>
+  );
+  return (
+    <div className="live-shell">
       <div className="top-strip">Dari Sorong, untuk Sorong.</div>
       <header className="site-header">
         <div className="header-inner">
           <Logo />
-          <nav className="live-nav">
-            <Link to="/explore">Jelajah</Link>
-            <Link to="/categories">Kategori</Link>
-            <Link to="/favorites">Favorit</Link>
-            {user && <Link to="/account">Akun & notifikasi</Link>}
-            {user?.roles.includes("buyer") && (
-              <>
-                <Link to="/cart">Keranjang</Link>
-                <Link to="/orders">Pesanan</Link>
-              </>
-            )}
-            <Link to="/seller/register">Buka lapak</Link>
-            {user?.roles.some((r) =>
-              ["seller", "admin", "super_admin"].includes(r),
-            ) && <Link to={destination(user)}>Dashboard</Link>}
-            {user ? (
-              <Action
-                run={() => api.logout()}
-                onDone={() => {
-                  setUser(null);
-                  navigate("/login");
-                }}
-              >
-                Keluar ({user.name})
-              </Action>
-            ) : (
-              <Link to="/login">Masuk</Link>
-            )}
+          <nav className="live-nav" aria-label="Navigasi utama">
+            <NavLink to="/explore">Jelajah</NavLink>
+            <NavLink to="/categories">Kategori</NavLink>
+            <NavLink to="/favorites">Favorit</NavLink>
+            <div className="live-secondary-nav">{secondaryLinks}</div>
           </nav>
+          <button
+            ref={menuTrigger}
+            className="btn btn-outline live-menu-toggle"
+            aria-haspopup="dialog"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen(true)}
+          >
+            Menu
+          </button>
         </div>
       </header>
-      <main className="page live-page">
+      <main className="live-page">
         <Outlet />
       </main>
       <footer className="footer-main">
@@ -424,13 +448,36 @@ function Shell() {
           ["/favorites", "heart", "Favorit"],
           [user ? "/account" : "/login", "user", "Akun"],
         ].map(([to, icon, label]) => (
-          <Link key={to} to={to}>
+          <Link
+            key={to}
+            to={to}
+            aria-current={
+              location.pathname === to ||
+              (to === "/search" && location.pathname === "/explore") ||
+              (to === "/categories" && location.pathname.startsWith("/category/"))
+                ? "page"
+                : undefined
+            }
+          >
             <Icon name={icon} size={21} />
             <span>{label}</span>
           </Link>
         ))}
       </nav>
-    </>
+      {menuOpen && (
+        <Modal title="Menu" onClose={() => setMenuOpen(false)}>
+          <nav
+            className="live-menu"
+            aria-label="Akun dan lapak"
+            onClick={(event) => {
+              if (event.target.closest("a")) setMenuOpen(false);
+            }}
+          >
+            {secondaryLinks}
+          </nav>
+        </Modal>
+      )}
+    </div>
   );
 }
 function Auth({ register = false }) {
@@ -597,7 +644,8 @@ function StoreCards({ stores }) {
 }
 function Cards({ products, favorites = false, reload }) {
   const { api, user } = useServer();
-  if (!products?.length) return <p>Belum ada produk yang tersedia.</p>;
+  if (!products?.length)
+    return <EmptyState title="Belum ada produk yang tersedia." to={null} />;
   return (
     <div className="product-grid">
       {products.map((p) => (
@@ -610,7 +658,10 @@ function Cards({ products, favorites = false, reload }) {
                 loading="lazy"
               />
             ) : (
-              <div className="image-placeholder">{p.name}</div>
+              <div className="image-placeholder">
+                <Icon name="grid" size={34} />
+                <span>{p.name}</span>
+              </div>
             )}
           </Link>
           <div className="product-copy">
@@ -618,7 +669,7 @@ function Cards({ products, favorites = false, reload }) {
               {p.name}
             </Link>
             <strong>{money(p.min_price)}</strong>
-            <Link to={`/store/${p.store_slug}`}>{p.store_name}</Link>
+            <Link className="product-seller" to={`/store/${p.store_slug}`}>{p.store_name}</Link>
             {user && (
               <Action
                 run={() =>
@@ -665,13 +716,16 @@ function Catalog({ favorites = false, category = false }) {
   if (category && !selected) return <p>Kategori tidak ditemukan.</p>;
   return (
     <>
-      <p className="eyebrow">PILIHAN LOKALMU</p>
-      <h1>
-        {favorites ? "Favorit saya" : selected?.name || "Temukan yang dekat."}
-      </h1>
+      <header className="page-heading live-catalog-heading">
+        <p className="eyebrow">PILIHAN LOKALMU</p>
+        <h1 id="catalog-title">
+          {favorites ? "Favorit saya" : selected?.name || "Temukan yang dekat."}
+        </h1>
+      </header>
       <form
         key={params.toString()}
-        className="live-search"
+        className={`live-search ${favorites || category ? "live-search-products" : ""}`}
+        role="search"
         onSubmit={(e) => {
           e.preventDefault();
           setParams(Object.fromEntries(new FormData(e.currentTarget)));
@@ -711,49 +765,55 @@ function Catalog({ favorites = false, category = false }) {
         )}
         <button className="btn btn-primary">Cari</button>
       </form>
-      <Resource resource={list}>
-        {(products) => (
-          <>
-            {storesTab ? (
-              <StoreCards stores={products} />
-            ) : (
-              <Cards
-                products={products}
-                favorites={favorites}
-                reload={list.reload}
-              />
-            )}
-            <div className="w-actions">
-              <button
-                className="btn btn-outline"
-                disabled={Number(query.get("offset")) === 0}
-                onClick={() =>
-                  setParams({
-                    ...Object.fromEntries(params),
-                    offset: String(
-                      Math.max(0, Number(query.get("offset")) - 30),
-                    ),
-                  })
-                }
-              >
-                Sebelumnya
-              </button>
-              <button
-                className="btn btn-outline"
-                disabled={products.length < 30}
-                onClick={() =>
-                  setParams({
-                    ...Object.fromEntries(params),
-                    offset: String(Number(query.get("offset")) + 30),
-                  })
-                }
-              >
-                Selanjutnya
-              </button>
-            </div>
-          </>
-        )}
-      </Resource>
+      <section
+        className="live-results"
+        aria-labelledby="catalog-title"
+        aria-busy={list.loading}
+      >
+        <Resource resource={list}>
+          {(products) => (
+            <>
+              {storesTab ? (
+                <StoreCards stores={products} />
+              ) : (
+                <Cards
+                  products={products}
+                  favorites={favorites}
+                  reload={list.reload}
+                />
+              )}
+              <nav className="w-pagination live-pagination" aria-label="Halaman hasil">
+                <button
+                  className="btn btn-outline"
+                  disabled={Number(query.get("offset")) === 0}
+                  onClick={() =>
+                    setParams({
+                      ...Object.fromEntries(params),
+                      offset: String(
+                        Math.max(0, Number(query.get("offset")) - 30),
+                      ),
+                    })
+                  }
+                >
+                  Sebelumnya
+                </button>
+                <button
+                  className="btn btn-outline"
+                  disabled={products.length < 30}
+                  onClick={() =>
+                    setParams({
+                      ...Object.fromEntries(params),
+                      offset: String(Number(query.get("offset")) + 30),
+                    })
+                  }
+                >
+                  Selanjutnya
+                </button>
+              </nav>
+            </>
+          )}
+        </Resource>
+      </section>
     </>
   );
 }

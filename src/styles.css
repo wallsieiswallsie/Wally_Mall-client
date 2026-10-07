@@ -45,6 +45,9 @@
   --white: #ffffff;
   --shadow: 0 8px 28px #25282208;
   --font-sans: "Segoe UI", Arial, sans-serif;
+  --page-max-width: 1256px;
+  --page-gutter: 28px;
+  --bottom-nav-height: 61px;
   font-family: var(--font-sans);
   color: var(--text-primary);
   background: var(--background);
@@ -234,9 +237,9 @@ h3 {
   z-index: 20;
 }
 .header-inner {
-  max-width: 1256px;
+  max-width: var(--page-max-width);
   margin: auto;
-  padding: 18px 28px;
+  padding: 18px var(--page-gutter);
   display: flex;
   align-items: center;
   gap: 35px;
@@ -307,9 +310,9 @@ h3 {
   display: none;
 }
 .main-content {
-  max-width: 1256px;
+  max-width: var(--page-max-width);
   margin: auto;
-  padding: 0 28px;
+  padding: 0 var(--page-gutter);
   min-height: 65vh;
 }
 .main-content > section {
@@ -833,9 +836,9 @@ h3 {
   margin-left: auto;
 }
 .footer-main {
-  max-width: 1256px;
+  max-width: var(--page-max-width);
   margin: 30px auto 0;
-  padding: 15px 28px 35px;
+  padding: 15px var(--page-gutter) 35px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2074,13 +2077,16 @@ dd {
   }
 }
 @media (max-width: 767px) {
+  :root {
+    --page-gutter: 20px;
+  }
   .top-strip,
   .desktop-search,
   .desktop-nav {
     display: none;
   }
   .header-inner {
-    padding: 14px 20px;
+    padding: 14px var(--page-gutter);
     justify-content: space-between;
   }
   .brand {
@@ -2095,7 +2101,7 @@ dd {
     border-bottom-color: var(--border-color);
   }
   .main-content {
-    padding: 0 20px;
+    padding: 0 var(--page-gutter);
   }
   .bottom-nav {
     display: flex;
@@ -2375,7 +2381,7 @@ dd {
     width: 100%;
   }
   .footer-main {
-    padding: 0 20px 100px;
+    padding: 0 var(--page-gutter) calc(100px + env(safe-area-inset-bottom));
     margin-top: 0;
     flex-wrap: wrap;
     align-items: flex-start;
@@ -2529,7 +2535,7 @@ dd {
     position: fixed;
     left: 0;
     right: 0;
-    bottom: calc(61px + env(safe-area-inset-bottom));
+    bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
     z-index: 39;
     background: var(--surface);
     border-top: 1px solid var(--border-color);
@@ -2748,15 +2754,18 @@ dd {
   }
 }
 @media (max-width: 374px) {
+  :root {
+    --page-gutter: 16px;
+  }
   .discovery-grid {
     margin-right: -16px;
     padding-right: 16px;
   }
   .main-content {
-    padding-inline: 16px;
+    padding-inline: var(--page-gutter);
   }
   .header-inner {
-    padding-inline: 16px;
+    padding-inline: var(--page-gutter);
   }
   .home-hero h1 {
     font-size: 35px;

@@ -38,11 +38,13 @@ export function EmptyState({
         <Icon name={icon} size={34} />
       </span>
       <h2>{title}</h2>
-      <p>{text}</p>
-      <Link className="btn btn-primary" to={to}>
-        {label}
-        <Icon name="arrow" />
-      </Link>
+      {text && <p>{text}</p>}
+      {to && (
+        <Link className="btn btn-primary" to={to}>
+          {label}
+          <Icon name="arrow" />
+        </Link>
+      )}
     </div>
   );
 }
