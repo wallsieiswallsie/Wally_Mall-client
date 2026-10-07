@@ -8,6 +8,12 @@ const messages = {
   UNAUTHORIZED: "Sesi berakhir. Silakan masuk kembali.",
   INSUFFICIENT_STOCK: "Stok tidak mencukupi. Perbarui keranjang.",
   PRODUCT_UNAVAILABLE: "Produk sedang tidak tersedia.",
+  NOT_FOUND: "Data tidak ditemukan atau sudah dihapus.",
+  CATEGORY_NAME_TAKEN: "Nama kategori sudah digunakan.",
+  CATEGORY_IN_USE:
+    "Kategori sudah dipakai sehingga tidak dapat dihapus. Nonaktifkan kategori sebagai gantinya.",
+  CATEGORY_UNAVAILABLE:
+    "Kategori yang dipilih sudah tidak tersedia. Muat ulang halaman lalu pilih kategori lain.",
 };
 
 export class ApiError extends Error {
