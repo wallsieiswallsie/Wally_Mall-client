@@ -8,7 +8,26 @@
     "test:render": "node tests/render-smoke.mjs",
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "start": "node scripts/serve.mjs",
+    "build:all": "npm run build && npm run build --workspaces --if-present",
+    "build:buyer": "npm run build --workspace @wally/buyer",
+    "dev:buyer": "npm run dev --workspace @wally/buyer",
+    "start:buyer": "npm run start --workspace @wally/buyer",
+    "preview:buyer": "npm run preview --workspace @wally/buyer",
+    "build:seller": "npm run build --workspace @wally/seller",
+    "dev:seller": "npm run dev --workspace @wally/seller",
+    "start:seller": "npm run start --workspace @wally/seller",
+    "preview:seller": "npm run preview --workspace @wally/seller",
+    "build:admin": "npm run build --workspace @wally/admin",
+    "dev:admin": "npm run dev --workspace @wally/admin",
+    "start:admin": "npm run start --workspace @wally/admin",
+    "preview:admin": "npm run preview --workspace @wally/admin",
+    "test:structure": "node scripts/check-structure.mjs",
+    "test:browser": "node tests/browser-regression.mjs",
+    "test:portals": "node tests/portal-smoke.mjs",
+    "test:media": "node tests/media-smoke.mjs",
+    "test:recovery": "node tests/recovery-browser.mjs"
   },
   "dependencies": {
     "react": "^19.1.0",
@@ -20,6 +39,14 @@
     "@vitejs/plugin-react": "^4.5.0",
     "daisyui": "^5.0.0",
     "tailwindcss": "^4.1.0",
-    "vite": "^6.3.0"
-  }
+    "vite": "^6.3.0",
+    "@babel/parser": "7.29.9",
+    "@babel/traverse": "7.29.8"
+  },
+  "workspaces": [
+    "apps/buyer",
+    "apps/seller",
+    "apps/admin",
+    "packages/*"
+  ]
 }

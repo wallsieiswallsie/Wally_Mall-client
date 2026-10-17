@@ -1,0 +1,138 @@
+import { useEffect, useState } from "react";
+import { Outlet, useLocation } from 'react-router';
+import { Link, NavLink } from '../../ui/navigation.jsx';
+
+import { Logo, Modal } from "../../ui/components/common/UI.jsx";
+import Icon from "../../ui/components/common/Icon.jsx";
+import SearchBar from "../components/search/SearchBar.jsx";
+import { DemoAccess } from '../components/commerce/Shared.jsx';
+import { usePrototype } from '../state/PrototypeContext.jsx';
+export default function MarketplaceLayout() {
+  const {view,session}=usePrototype();
+  const [favorites, setFavorites] = useState([
+    "butter-croissant",
+    "canvas-tote",
+  ]);
+  const [notice, setNotice] = useState(null);
+  const [demoStore, setDemoStore] = useState(null);
+  const [demoProducts, setDemoProducts] = useState([]);
+  const location = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    setNotice(null);
+  }, [location.pathname, location.search]);
+  const toggleFavorite = (slug) =>
+    setFavorites((items) =>
+      items.includes(slug) ? items.filter((s) => s !== slug) : [...items, slug],
+    );
+  return (
+    <>
+      <div className="top-strip">
+        <span>
+          <Icon name="pin" size={13} />
+          Dari Sorong, untuk Sorong.
+        </span>
+        <span>Kenali yang dekat. Temukan yang kamu cari.</span>
+      </div>
+      <header className="site-header">
+        <div className="header-inner">
+          <Logo />
+          <div className="desktop-search">
+            <SearchBar />
+          </div>
+          <nav className="desktop-nav" aria-label="Navigasi utama">
+            {session?.role==='buyer'&&<><NavLink to="/cart">Keranjang ({view.cart.reduce((n,l)=>n+l.quantity,0)})</NavLink><NavLink to="/orders">Pesanan</NavLink></>}
+            <NavLink to="/explore">Jelajah</NavLink>
+            <NavLink to="/categories">Kategori</NavLink>
+            <Link to="/seller/register">
+              Buka Lapak
+              <Icon name="arrow" size={14} />
+            </Link>
+            <NavLink to="/login" className="login-link">
+              <Icon name="user" size={18} />
+              Masuk
+            </NavLink>
+          </nav>
+          <div className="mobile-actions">
+            {session?.role==='buyer'&&<Link className="icon-btn" to="/cart" aria-label="Keranjang">▤ {view.cart.length}</Link>}
+            <Link className="icon-btn" to="/search" aria-label="Cari">
+              <Icon name="search" />
+            </Link>
+            <Link className="icon-btn" to="/login" aria-label="Akun">
+              <Icon name="user" />
+            </Link>
+          </div>
+        </div>
+      </header>
+      <main className="main-content">
+        <Outlet
+          context={{
+            favorites,
+            toggleFavorite,
+            notify: setNotice,
+            demoStore,
+            setDemoStore,
+            demoProducts,
+            setDemoProducts,
+          }}
+        />
+      </main>
+      <footer className="footer-main">
+        <div>
+          <Logo />
+          <p>Sorong, Ketemu di Wally.</p>
+        </div>
+        <p>
+          Temukan yang kamu butuhkan.
+          <br />
+          Dukung yang ada di sekitarmu.
+        </p>
+        <span>
+          Prototype UI · Semua produk & seller adalah data contoh.
+          <br />
+          Foto produk merupakan ilustrasi.
+        </span>
+      </footer>
+      <nav className="bottom-nav" aria-label="Navigasi mobile">
+        {[
+          ["/", "home", "Home"],
+          ["/search", "search", "Cari"],
+          ["/categories", "grid", "Kategori"],
+          session?.role==='buyer'?["/orders", "heart", "Pesanan"]:["/favorites", "heart", "Favorit"],
+          ["/login", "user", "Akun"],
+        ].map(([to, icon, label]) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === "/"}
+            className={({ isActive }) =>
+              isActive ||
+              (to === "/categories" &&
+                location.pathname.startsWith("/category/"))
+                ? "active"
+                : ""
+            }
+          >
+            <Icon name={icon} size={21} />
+            <span>{label}</span>
+          </NavLink>
+        ))}
+      </nav>
+      <DemoAccess compact/>
+      {notice && (
+        <Modal
+          title={notice.title || "Preview interaksi"}
+          onClose={() => setNotice(null)}
+        >
+          <p className="notice-copy">{notice.message}</p>
+          <button
+            className="btn btn-primary full"
+            onClick={() => setNotice(null)}
+          >
+            Mengerti
+          </button>
+        </Modal>
+      )}
+    </>
+  );
+}

@@ -6,7 +6,7 @@ Audit date: **2026-09-22**. [Documentation home](../README.md#documentation).
 
 Inspected project inventory, package/lockfile, Vite/HTML/CSS configuration, route tree, all pages, shared components, fixtures, README/asset notes, source state behavior, environment references and Git context. No applicable AGENTS.md or server/database package was found. Dependency internals and generated assets were excluded as application source. This is source/build/documentation verification, not a new browser or security certification.
 
-Primary evidence: [routes](../client/src/routes/AppRoutes.jsx), [layout](../client/src/layouts/MarketplaceLayout.jsx), [search](../client/src/pages/Search.jsx), [auth](../client/src/pages/Auth.jsx), [onboarding](../client/src/pages/SellerOnboarding.jsx), [product form](../client/src/pages/AddProduct.jsx), [dashboard](../client/src/pages/SellerDashboard.jsx), [scripts](../client/package.json).
+Primary evidence: [routes](../client/compat/PrototypeRoutes.jsx), [layout](../client/packages/shared/layouts/MarketplaceLayout.jsx), [search](../client/apps/buyer/src/prototype/Search.jsx), [auth](../client/packages/shared/prototype/Auth.jsx), [onboarding](../client/apps/seller/src/prototype/SellerOnboarding.jsx), [product form](../client/apps/seller/src/prototype/AddProduct.jsx), [dashboard](../client/apps/seller/src/prototype/SellerDashboard.jsx), [scripts](../client/package.json).
 
 ## A. Existing product flow discovered
 

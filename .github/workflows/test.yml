@@ -1,0 +1,16 @@
+name: Client checks
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      VITE_API_URL: https://api.example.test
+      VITE_PROTOTYPE_MODE: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm test
+      - run: npm run test:structure
+      - run: npm run build:all

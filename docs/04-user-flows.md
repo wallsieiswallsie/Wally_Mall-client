@@ -2,7 +2,7 @@
 
 [Route inventory](05-information-architecture.md) · [Requirements](02-product-requirements.md)
 
-These flows reconstruct [AppRoutes](../client/src/routes/AppRoutes.jsx) and page handlers. All routes are public. A node marked preview is a simulation, not a backend operation.
+These flows reconstruct [AppRoutes](../client/compat/PrototypeRoutes.jsx) and page handlers. All routes are public. A node marked preview is a simulation, not a backend operation.
 
 ## Buyer discovery
 

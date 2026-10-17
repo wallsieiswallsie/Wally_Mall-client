@@ -8,7 +8,7 @@ Help buyers find relevant available local supply even when merchant wording diff
 
 ## Current implementation
 
-[Search.jsx](../client/src/pages/Search.jsx) lowercases the query, splits on whitespace, drops empty tokens, and requires **every token** to occur as a substring of concatenated fields. It does not require a phrase to appear contiguously or in the same field.
+[Search.jsx](../client/apps/buyer/src/prototype/Search.jsx) lowercases the query, splits on whitespace, drops empty tokens, and requires **every token** to occur as a substring of concatenated fields. It does not require a phrase to appear contiguously or in the same field.
 
 | Search surface | Indexed fields in current browser computation |
 | --- | --- |

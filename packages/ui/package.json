@@ -1,0 +1,11 @@
+{
+  "name": "@wally/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@wally/api-client": "0.1.0",
+    "react": "^19.1.0",
+    "react-router": "^7.6.0"
+  }
+}

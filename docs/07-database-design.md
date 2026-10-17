@@ -6,7 +6,7 @@
 
 **Proposed schema based on the current product flow.** No database models, migrations, ORM, server, or seed runner exist. This document does not create tables or modify a database. PostgreSQL is a proposed persistence choice; its version and hosting remain unselected.
 
-Current data comes from [products.js](../client/src/data/products.js), [sellers.js](../client/src/data/sellers.js), and [categories.js](../client/src/data/categories.js). Slugs act as identity and relationship keys. Products carry one category, a subcategory string, tags, optional image/rating, price, condition, stock, and description. Sellers combine storefront name, area, description, decorative initials, sample rating/badge, and a formatted joined date. Categories contain subcategory arrays. Neither fixture data nor preview state is a production schema.
+Current data comes from [products.js](../client/packages/shared/data/products.js), [sellers.js](../client/packages/shared/data/sellers.js), and [categories.js](../client/packages/shared/data/categories.js). Slugs act as identity and relationship keys. Products carry one category, a subcategory string, tags, optional image/rating, price, condition, stock, and description. Sellers combine storefront name, area, description, decorative initials, sample rating/badge, and a formatted joined date. Categories contain subcategory arrays. Neither fixture data nor preview state is a production schema.
 
 ## Design conventions — proposed
 

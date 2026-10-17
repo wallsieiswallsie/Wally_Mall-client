@@ -45,7 +45,7 @@ See [current user flows](docs/04-user-flows.md) for seller simulations and their
 
 ## System Architecture
 
-A browser runs the React SPA. `src/api/client.js` handles JSON, bearer authentication, refresh/retry and errors; `src/live/ServerApp.jsx` connects routes to the actual Fastify API. `PrototypeContext` remains isolated to demo mode. The older architecture/proposed API documents are historical; [server source contracts](../server/docs/client-api-mapping.md) are authoritative.
+A browser runs the React SPA. `packages/api-client/client.js` handles JSON, bearer authentication, refresh/retry and errors; `packages/shared/live/ServerApp.jsx` restores the session while each role app owns its routes and pages. `compat/` composes the original combined application. `PrototypeContext` remains isolated to demo mode. See the [workspace and deployment guide](docs/live-deployment.md). The older architecture/proposed API documents are historical; [server source contracts](https://github.com/wallsieiswallsie/Wally_Mall-server/blob/main/docs/client-api-mapping.md) are authoritative.
 
 ## Tech Stack
 
@@ -58,7 +58,7 @@ Derived from `client/package.json`, its lockfile, imports, and Vite configuratio
 | Build | Vite 6.4.3, React Vite plugin 4.7.0 |
 | Styling | Tailwind CSS / Vite integration 4.3.3, DaisyUI 5.7.42, custom CSS |
 | Data and state | REST API, React hooks/context; isolated fixtures in demo mode |
-| Backend / database | Fastify / Knex / PostgreSQL in ../server |
+| Backend / database | Fastify / Knex / PostgreSQL in the separate Wally_Mall-server repository |
 
 ## Repository Structure
 
@@ -66,17 +66,18 @@ Derived from `client/package.json`, its lockfile, imports, and Vite configuratio
 Wally_Mall/
   docs/                    Product, business, engineering, and audit documentation
   client/
-    src/components/        Shared UI, product, seller, category, search components
-    src/data/              Sample products, sellers, categories
-    src/layouts/           Shared navigation and session-only preview state
-    src/pages/             Discovery, detail, auth and seller preview screens
-    src/routes/            Actual route configuration
-    src/utils/             IDR price formatting
-    src/assets/            Asset notes; wordmark is implemented in JSX
-    src/styles.css         Theme, layout and responsive styling
-    package.json           Client scripts; server has its own package
-  .env.example             API base URL, Vite proxy target, opt-in prototype flag
-  CONTRIBUTING.md          Local workflow and review expectations
+    apps/buyer/            Buyer entry, routes and pages
+    apps/seller/           Seller entry, routes and pages
+    apps/admin/            Admin and super-admin entry, routes and pages
+    apps/courier/          Reserved boundary; no implementation
+    packages/api-client/   API/session helpers and centralized browser config
+    packages/ui/           Common UI and styles
+    packages/shared/       Shared app components, state, layouts and utilities
+    compat/                Combined entry for existing deployments
+    config/                Shared Vite configuration
+    package.json           npm workspaces; server has its own package
+    .env.example           Shared frontend environment template
+    CONTRIBUTING.md        Local workflow and review expectations
 ```
 
 ## Getting Started

@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createApi } from '../src/api/client.js';
-import { apiUrl, normalizeApiOrigin } from '../src/api/url.js';
-import { findSellerOrder } from '../src/api/orders.js';
+import { createApi } from '../packages/api-client/client.js';
+import { apiUrl, normalizeApiOrigin } from '../packages/api-client/url.js';
+import { findSellerOrder } from '../packages/api-client/orders.js';
 const ok = data => new Response(JSON.stringify({ data }), { status: 200 });
 const fail = (status = 401, code = 'UNAUTHORIZED') => new Response(JSON.stringify({ error: { code, request_id: 'request-test' } }), { status });
 function storage() {

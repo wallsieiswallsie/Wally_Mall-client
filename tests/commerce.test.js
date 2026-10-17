@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { initialConfig, platformFee, quote, transitionOrder, visibleOrders, inventory, nextSellerStatus, requireRole } from '../src/domain/commerce.js';
-import { MockPaymentGateway, refundOrder } from '../src/domain/payment.js';
-import { seedState } from '../src/data/prototype.js';
-import { metrics } from '../src/domain/analytics.js';
-import { authenticateDemo } from '../src/domain/authentication.js';
+import { initialConfig, platformFee, quote, transitionOrder, visibleOrders, inventory, nextSellerStatus, requireRole } from '../packages/shared/domain/commerce.js';
+import { MockPaymentGateway, refundOrder } from '../packages/shared/domain/payment.js';
+import { seedState } from '../packages/shared/data/prototype.js';
+import { metrics } from '../packages/shared/domain/analytics.js';
+import { authenticateDemo } from '../packages/shared/domain/authentication.js';
 
 test('shared login derives four demo roles and disabled demo fails closed',()=>{
  for(const [email,role] of [['buyer','buyer'],['seller','seller'],['admin','admin'],['super','super_admin']]) assert.equal(authenticateDemo(`${email}@demo.wally`,'wally-demo',true),role);

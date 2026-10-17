@@ -4,7 +4,7 @@
 
 ## Current behavior
 
-[Auth.jsx](../client/src/pages/Auth.jsx) contains forms only. Password inputs are masked and have a six-character browser minimum; no password is hashed, verified, sent to a backend, or stored as an account. Login and buyer registration show notices. Seller registration navigates to onboarding without creating identity or session. The role selector expresses user intent only.
+[Auth.jsx](../client/packages/shared/prototype/Auth.jsx) contains forms only. Password inputs are masked and have a six-character browser minimum; no password is hashed, verified, sent to a backend, or stored as an account. Login and buyer registration show notices. Seller registration navigates to onboarding without creating identity or session. The role selector expresses user intent only.
 
 There is no JWT, cookie session, identity provider, authorization middleware, route guard, ownership enforcement, or admin role. `/seller/dashboard` and `/seller/products/new` can be opened by any visitor. This is intentional preview behavior, not acceptable authorization for a persistent service.
 

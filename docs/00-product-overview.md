@@ -35,4 +35,4 @@ Sorong is the initial business boundary. The UI uses a fixed set of Sorong area 
 
 **Current** means code exists, including simulations explicitly identified as such. **Planned** means recommended implementation or proposed architecture, pending agreement. **Future/Exploratory** means a possibility requiring further evidence. No roadmap dates or commercial commitments are inferred.
 
-Source anchors: [routes](../client/src/routes/AppRoutes.jsx), [fixtures](../client/src/data/products.js), [layout state](../client/src/layouts/MarketplaceLayout.jsx), and [seller onboarding](../client/src/pages/SellerOnboarding.jsx). The [audit report](audit-report.md) records limitations and open decisions.
+Source anchors: [routes](../client/compat/PrototypeRoutes.jsx), [fixtures](../client/packages/shared/data/products.js), [layout state](../client/packages/shared/layouts/MarketplaceLayout.jsx), and [seller onboarding](../client/apps/seller/src/prototype/SellerOnboarding.jsx). The [audit report](audit-report.md) records limitations and open decisions.

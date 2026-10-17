@@ -2,7 +2,7 @@
 
 [Flows](04-user-flows.md) · [Architecture](06-system-architecture.md)
 
-Source of truth: [AppRoutes.jsx](../client/src/routes/AppRoutes.jsx). Every route uses `MarketplaceLayout` with desktop/mobile navigation, footer, outlet state, and notice dialogs. “Audience” below indicates intent, not enforced permissions.
+Source of truth: [AppRoutes.jsx](../client/compat/PrototypeRoutes.jsx). Every route uses `MarketplaceLayout` with desktop/mobile navigation, footer, outlet state, and notice dialogs. “Audience” below indicates intent, not enforced permissions.
 
 ```text
 Public discovery

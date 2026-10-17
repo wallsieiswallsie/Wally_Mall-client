@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { uploadMedia, validateMediaFile } from "../src/api/media.js";
-import { createApi } from "../src/api/client.js";
+import { uploadMedia, validateMediaFile } from "../packages/api-client/media.js";
+import { createApi } from "../packages/api-client/client.js";
 
 test("real API client sends media start and completion to canonical URLs", async () => {
   const calls = [];

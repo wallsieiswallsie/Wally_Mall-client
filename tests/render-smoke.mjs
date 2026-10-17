@@ -1,6 +1,6 @@
 import { createServer } from 'vite';
 import assert from 'node:assert/strict';
-import { seedState } from '../src/data/prototype.js';
+import { seedState } from '../packages/shared/data/prototype.js';
 
 // This suite deliberately verifies the opt-in prototype, independently of .env.
 process.env.VITE_PROTOTYPE_MODE='true';
@@ -17,5 +17,10 @@ try {
  const cases=[['buyer','/'],['buyer','/login'],['buyer','/product/nike-air-force-white'],['buyer','/cart'],['buyer','/checkout'],['buyer','/payment/PAY-DEMO'],['buyer','/orders'],['buyer',`/orders/${state.orders[0].id}`],['seller','/seller/dashboard'],['seller','/seller/orders'],['seller',`/seller/orders/${state.orders[0].id}`],...['','orders','sellers','products','categories','reports','moderation','support'].map(p=>['admin',`/admin/${p}`]),...['','transactions','orders','buyers','sellers','products','categories','operations','reports','admins','platform-fee','moderation','audit-log','settings'].map(p=>['super_admin',`/super-admin/${p}`])];
  for(const [r,path] of cases){role=r;const html=renderRoute(path);assert.ok(html.length>1000,`Empty render: ${path}`);if(r==='admin'){for(const forbidden of ['Gross Merchandise Value','Platform Revenue','Seller net earnings','Platform Fee Settings','Admin Management','nawal@example.com','Nawal Alhamid','081248761291'])assert.ok(!html.includes(forbidden),`Sensitive data in ${path}: ${forbidden}`);}console.log(`PASS ${r} ${path}`);}
  role='admin';const blocked=renderRoute('/super-admin/platform-fee');assert.ok(blocked.includes('Akses terbatas'));assert.ok(!blocked.includes('Default transaction fee'));console.log('PASS direct unauthorized financial route is blocked');
- console.log(`${cases.length+1} route checks passed.`);
+ for (const [r,path] of cases) {
+   role=r;
+   const portal=r==='super_admin'?'admin':r;
+   assert.equal(renderRoute(path,portal),renderRoute(path),`Portal render differs: ${portal} ${path}`);
+ }
+ console.log(`${cases.length+1} compatibility route checks and ${cases.length} identical portal renders passed.`);
 } finally {await server.close();}
