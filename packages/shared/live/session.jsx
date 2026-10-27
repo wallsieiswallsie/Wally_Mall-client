@@ -15,7 +15,7 @@ import { Form } from './Forms.jsx';
 import { addressFields } from './format.js';
 import { Facts } from './Forms.jsx';
 
-function Guard({ roles, children }) {
+function Guard({ roles, children, fallback }) {
   const { user } = useServer();
   const location = useLocation();
   if (!user)
@@ -27,7 +27,7 @@ function Guard({ roles, children }) {
       />
     );
   if (roles && !roles.some((role) => user.roles.includes(role)))
-    return (
+    return fallback ?? (
       <p role="alert">Akun ini tidak memiliki akses ke halaman tersebut.</p>
     );
   return children;

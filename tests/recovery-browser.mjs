@@ -5,7 +5,7 @@ import { once } from 'node:events';
 import { pathToFileURL } from 'node:url';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE ? pathToFileURL(process.env.PLAYWRIGHT_MODULE).href : 'playwright');
 const base = 'http://127.0.0.1:5196';
-const vite = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', '5196'], {
+const vite = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', '5196', '--strictPort'], {
   windowsHide: true, stdio: ['ignore', 'pipe', 'inherit'],
   env: { ...process.env, VITE_API_URL: base, VITE_PROTOTYPE_MODE: 'false', VITE_BUYER_URL: '', VITE_SELLER_URL: '', VITE_ADMIN_URL: '' },
 });
@@ -18,6 +18,7 @@ try {
   });
   browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHANNEL ? { channel: process.env.PLAYWRIGHT_CHANNEL } : {}) });
   const page = await browser.newPage();
+  page.setDefaultNavigationTimeout(90000);
   const errors = [], calls = [];
   page.on('pageerror', e => errors.push(e.message));
   await page.addInitScript(() => {
@@ -50,6 +51,30 @@ try {
     assert.equal(await page.getByRole('button', { name: 'Buat / lanjutkan sesi pembayaran' }).count(), 0);
   }
   assert.deepEqual(errors, []);
+  payment.provider = 'xendit';
+  payment.status = 'pending';
+  await page.route('**/api/v1/payments/same-payment/session', route => route.fulfill({ json: { data: {
+    id: payment.id, status: 'pending', provider_reference: 'ps-fixture', checkout_url: 'https://xen.to/local-ui-fixture',
+  } } }));
+  await page.route('https://xen.to/local-ui-fixture', route => route.fulfill({ contentType: 'text/html', body: '<h1>Hosted checkout fixture</h1>' }));
+  for (const width of [390, 1280]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto(base + '/payment/same-payment');
+    await page.getByRole('button', { name: 'Sinkronkan status Xendit' }).waitFor();
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
+    await page.getByRole('button', { name: 'Buat / lanjutkan sesi pembayaran' }).click();
+    await page.getByRole('heading', { name: 'Hosted checkout fixture' }).waitFor();
+    assert.equal(payment.status, 'pending');
+    await page.goto(base + '/payment/same-payment?status=success');
+    await page.getByRole('button', { name: 'Buat / lanjutkan sesi pembayaran' }).waitFor();
+  }
+  payment.reconciliation_required = true;
+  await page.reload();
+  await page.getByText(/Pembayaran sedang diperiksa/).waitFor();
+  assert.equal(await page.getByRole('button', { name: 'Buat / lanjutkan sesi pembayaran' }).count(), 0);
+  assert.ok(!calls.some(([, path]) => /webhook/.test(path)));
+  assert.deepEqual(errors, []);
+  console.log('PASS Xendit hosted redirect and return-query distrust at 390/1280px (HTTP fixtures, not sandbox E2E)');
   console.log('PASS live UI fixture: storage-free payment recovery and terminal states');
 } finally {
   await browser?.close();

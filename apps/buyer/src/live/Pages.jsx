@@ -10,7 +10,7 @@ import { useParams } from 'react-router';
 
 import { useSearchParams } from 'react-router';
 
-import { paymentAction } from '../../../../packages/api-client/payment.js';
+import { paymentAction, hostedCheckoutUrl } from '../../../../packages/api-client/payment.js';
 import { SectionHeading } from '../../../../packages/ui/components/common/UI.jsx';
 import { EmptyState } from '../../../../packages/ui/components/common/UI.jsx';
 import Icon from '../../../../packages/ui/components/common/Icon.jsx';
@@ -598,8 +598,8 @@ function Cart({ checkout = false }) {
                         </select>
                       </label>
                       <p>
-                        Provider saat ini memakai sandbox mock; tidak memproses
-                        uang sungguhan.
+                        Pilihan pembayaran tersedia pada halaman pembayaran.
+                        Status pesanan diperbarui setelah konfirmasi server.
                       </p>
                     </section>
                   </>
@@ -694,12 +694,21 @@ function Payment() {
                 run={() =>
                   api.request(`/payments/${p.id}/session`, { method: "POST" })
                 }
-                onDone={(result) => setReference(result.provider_reference)}
+                onDone={(result) => {
+                  setReference(result.provider_reference);
+                  if (result.checkout_url) window.location.assign(hostedCheckoutUrl(result.checkout_url));
+                  else resource.reload();
+                }}
               >
                 Buat / lanjutkan sesi pembayaran
               </Action>
             )}
             {reference && <p>Referensi: {reference}</p>}
+            {p.provider === "xendit" && (
+              <Action run={() => api.request(`/payments/${p.id}/reconcile`, { method: "POST" })} onDone={resource.reload}>
+                Sinkronkan status Xendit
+              </Action>
+            )}
             <button className="btn btn-outline" onClick={resource.reload}>
               Periksa status
             </button>

@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { Link } from '../../../../packages/ui/navigation.jsx';
 
-import { Outlet } from 'react-router';
 
 import { Modal } from '../../../../packages/ui/components/common/UI.jsx';
 import { Field } from '../../../../packages/ui/components/common/UI.jsx';
@@ -24,47 +22,6 @@ const managementSections = {
   "fee-rules": "Platform fee",
   audit: "Audit log",
 };
-function AdminShell({ superAdmin = false }) {
-  const prefix = superAdmin ? "/super-admin" : "/admin";
-  return (
-    <>
-      <h1>{superAdmin ? "Super admin" : "Admin"}</h1>
-      <nav className="live-nav">
-        <Link to={prefix}>Overview</Link>
-        <Link to={`${prefix}/orders`}>Pesanan</Link>
-        {superAdmin && <Link to={`${prefix}/transactions`}>Transaksi</Link>}
-        {Object.entries(managementSections)
-          .filter(
-            ([key]) =>
-              superAdmin ||
-              !["buyers", "admins", "fee-rules", "audit"].includes(key),
-          )
-          .map(([key, label]) => (
-            <Link key={key} to={`${prefix}/${key}`}>
-              {label}
-            </Link>
-          ))}
-      </nav>
-      <Outlet />
-    </>
-  );
-}
-function Overview({ superAdmin = false }) {
-  const resource = useResource(
-    superAdmin ? "/super-admin/overview" : "/admin/overview",
-  );
-  return (
-    <Resource resource={resource}>
-      {(data) => (
-        <>
-          <Facts row={data} />
-          <h2>Status pesanan</h2>
-          <Facts row={data.statuses} />
-        </>
-      )}
-    </Resource>
-  );
-}
 function Management({ kind }) {
   const { api } = useServer();
   const prefix = ["buyers", "admins", "fee-rules", "audit"].includes(kind)
@@ -474,4 +431,4 @@ function FeeForm({ onDone }) {
     </Resource>
   );
 }
-export { managementSections, AdminShell, Overview, Management, CategoryManagement, CategoryDialog, FeeForm };
+export { managementSections, Management, CategoryManagement, CategoryDialog, FeeForm };

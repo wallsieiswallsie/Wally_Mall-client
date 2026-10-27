@@ -5,10 +5,10 @@ import { Route } from 'react-router';
 import { Guard } from '../../../../packages/shared/live/session.jsx';
 import { Orders } from '../../../../packages/shared/live/Orders.jsx';
 import { managementSections } from './Pages.jsx';
-import { AdminShell } from './Pages.jsx';
-import { Overview } from './Pages.jsx';
 import { Management } from './Pages.jsx';
 import { CategoryManagement } from './Pages.jsx';
+import { AdminLayout, Denied, NotFound } from './Layout.jsx';
+import { Overview } from './Overview.jsx';
 
 function adminRoutes(location) { return <>
 {[false, true].map((superAdmin) => (
@@ -18,12 +18,19 @@ function adminRoutes(location) { return <>
             element={
               <Guard
                 roles={superAdmin ? ["super_admin"] : ["admin", "super_admin"]}
+                fallback={<Denied />}
               >
-                <AdminShell superAdmin={superAdmin} />
+                <AdminLayout superAdmin={superAdmin} />
               </Guard>
             }
           >
             <Route index element={<Overview superAdmin={superAdmin} />} />
+            {superAdmin && (
+              <Route
+                path="operations"
+                element={<Overview superAdmin operational />}
+              />
+            )}
             <Route path="orders" element={<Orders admin />} />
             {superAdmin && (
               <Route path="transactions" element={<Orders financial />} />
@@ -63,6 +70,7 @@ function adminRoutes(location) { return <>
                 />
               </>
             )}
+            <Route path="*" element={<NotFound superAdmin={superAdmin} />} />
           </Route>
         ))}
 </>; }
